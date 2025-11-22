@@ -1,37 +1,35 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
+import mongoose from "mongoose";
+import formRoutes from "./routes/formRoutes.js";
+import submissionRoutes from "./routes/submissionRoutes.js";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// In-memory store for testing (replace with DB later)
-const FORMS = {}; // id -> { id, title, fields, createdAt }
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/form-builder";
+
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  });
 
 app.get("/", (req, res) => {
   res.json({ message: "Backend is running, Eashaan" });
 });
 
-// Save form
-app.post("/api/forms", (req, res) => {
-  const { title, fields } = req.body;
-  if (!title || !fields) return res.status(400).json({ error: "title and fields required" });
+// Mount form routes
+app.use("/forms", formRoutes);
+// Mount submission routes
+app.use("/submissions", submissionRoutes);
 
-  const id = Date.now().toString(36);
-  const doc = { id, title, fields, createdAt: new Date().toISOString() };
-  FORMS[id] = doc;
-
-  res.json({ id, success: true });
-});
-
-// Get a form
-app.get("/api/forms/:id", (req, res) => {
-  const doc = FORMS[req.params.id];
-  if (!doc) return res.status(404).json({ error: "not found" });
-  res.json(doc);
-});
-
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
