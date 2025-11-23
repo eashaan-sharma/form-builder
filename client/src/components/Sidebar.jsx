@@ -1,7 +1,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { useRef, useEffect } from "react";
 
-function DraggableFieldButton({ txt, type, onAdd }) {
+function DraggableFieldButton({ txt, type, onAdd, darkMode }) {
   const wasDraggedRef = useRef(false);
   const prevIsDraggingRef = useRef(false);
   
@@ -36,8 +36,11 @@ function DraggableFieldButton({ txt, type, onAdd }) {
     padding: "10px 12px",
     marginBottom: 8,
     borderRadius: 6,
-    border: "1px solid #ddd",
-    background: isDragging ? "#f0f7ff" : "#fff",
+    border: darkMode ? "1px solid #4b5563" : "1px solid #ddd",
+    background: isDragging 
+      ? (darkMode ? "#1e3a5f" : "#f0f7ff") 
+      : (darkMode ? "#374151" : "#fff"),
+    color: darkMode ? "#e5e7eb" : "#333",
     cursor: "grab",
     opacity: isDragging ? 0.5 : 1,
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
@@ -68,24 +71,25 @@ function DraggableFieldButton({ txt, type, onAdd }) {
   );
 }
 
-export default function Sidebar({ onAdd, onSave, title, setTitle }) {
+export default function Sidebar({ onAdd, onSave, title, setTitle, darkMode }) {
   return (
     <aside style={{ padding: 12 }}>
       <div style={{ marginBottom: 12 }}>
-        <label style={{ display: "block", fontSize: 12, color: "#666" }}>Form title</label>
+        <label style={{ display: "block", fontSize: 12, color: darkMode ? "#9ca3af" : "#666" }}>Form title</label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ddd" }}
+          className={darkMode ? 'bg-gray-700 border-gray-600 text-gray-200' : 'bg-white border-gray-300 text-gray-900'}
+          style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid" }}
         />
       </div>
 
       <div style={{ marginTop: 12 }}>
-        <h4 style={{ margin: "8px 0" }}>Add field</h4>
-        <DraggableFieldButton txt="Single-line Text" type="text" onAdd={onAdd} />
-        <DraggableFieldButton txt="Checkbox" type="checkbox" onAdd={onAdd} />
-        <DraggableFieldButton txt="Dropdown / Select" type="select" onAdd={onAdd} />
-        <DraggableFieldButton txt="Number" type="number" onAdd={onAdd} />
+        <h4 style={{ margin: "8px 0", color: darkMode ? "#e5e7eb" : "#333" }}>Add field</h4>
+        <DraggableFieldButton txt="Single-line Text" type="text" onAdd={onAdd} darkMode={darkMode} />
+        <DraggableFieldButton txt="Checkbox" type="checkbox" onAdd={onAdd} darkMode={darkMode} />
+        <DraggableFieldButton txt="Dropdown / Select" type="select" onAdd={onAdd} darkMode={darkMode} />
+        <DraggableFieldButton txt="Number" type="number" onAdd={onAdd} darkMode={darkMode} />
       </div>
 
       <div style={{ marginTop: 20 }}>
