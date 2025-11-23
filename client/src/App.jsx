@@ -20,10 +20,23 @@ export default function App() {
   const [title, setTitle] = useState("Untitled form");
   const [formId, setFormId] = useState(null); // Track the current form's ID
   const [searchParams, setSearchParams] = useSearchParams();
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
 
   useEffect(() => {
     pingServer().then(setMsg);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   // Load form if id query param exists
   useEffect(() => {
@@ -216,19 +229,36 @@ export default function App() {
       } />
       <Route path="*" element={
         <DndContext onDragEnd={handleDragEnd}>
-          <div style={{ fontFamily: "system-ui, sans-serif" }}>
-            <header style={{ padding: "16px 20px", borderBottom: "1px solid #eee" }}>
+          <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-white'}`} style={{ fontFamily: "system-ui, sans-serif" }}>
+            <header className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`} style={{ padding: "16px 20px", borderBottom: "1px solid" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h1 className="text-4xl font-bold text-blue-600">Form Builder</h1>
+                <h1 className={`text-4xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>Formulate</h1>
                 <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                  <button
+                    onClick={() => setDarkMode(!darkMode)}
+                    className={`${darkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      border: "1px solid",
+                      borderColor: darkMode ? "#4b5563" : "#d1d5db",
+                      cursor: "pointer",
+                      fontSize: 14,
+                      fontWeight: 500,
+                      transition: "all 0.2s ease"
+                    }}
+                    title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+                  >
+                    {darkMode ? "☀️" : "🌙"}
+                  </button>
                   <button
                     onClick={() => setView("list")}
                     style={{
                       padding: "8px 16px",
                       borderRadius: 6,
                       border: "1px solid #ddd",
-                      background: view === "list" ? "#0b79f7" : "#fff",
-                      color: view === "list" ? "#fff" : "#333",
+                      background: view === "list" ? "#0b79f7" : darkMode ? "#374151" : "#fff",
+                      color: view === "list" ? "#fff" : darkMode ? "#e5e7eb" : "#333",
                       cursor: "pointer",
                       fontSize: 14,
                       fontWeight: 500,
@@ -243,8 +273,8 @@ export default function App() {
                       padding: "8px 16px",
                       borderRadius: 6,
                       border: "1px solid #ddd",
-                      background: view === "builder" ? "#0b79f7" : "#fff",
-                      color: view === "builder" ? "#fff" : "#333",
+                      background: view === "builder" ? "#0b79f7" : darkMode ? "#374151" : "#fff",
+                      color: view === "builder" ? "#fff" : darkMode ? "#e5e7eb" : "#333",
                       cursor: "pointer",
                       fontSize: 14,
                       fontWeight: 500,
@@ -255,7 +285,7 @@ export default function App() {
                   </button>
                 </div>
               </div>
-              <div style={{ color: "#666", marginTop: 6 }}>Backend status: {msg}</div>
+              <div className={darkMode ? 'text-gray-400' : 'text-gray-600'} style={{ marginTop: 6 }}>The modular Form Builder</div>
             </header>
 
             {view === "builder" ? (
@@ -266,6 +296,7 @@ export default function App() {
                     onSave={saveForm}
                     title={title}
                     setTitle={setTitle}
+                    darkMode={darkMode}
                   />
 
                   <FormCanvas
@@ -275,26 +306,28 @@ export default function App() {
                     onRemove={removeField}
                     onAddFieldFromDrag={addField}
                     onReorder={setFields}
+                    darkMode={darkMode}
                   />
 
-                  <div style={{ border: "1px solid #eee", padding: 12, borderRadius: 8 }}>
-                    <h3>Properties</h3>
+                  <div className={darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} style={{ border: "1px solid", padding: 12, borderRadius: 8 }}>
+                    <h3 className={darkMode ? 'text-gray-200' : 'text-gray-900'}>Properties</h3>
                     {selectedId ? (
                       <FieldRenderer
                         field={fields.find((f) => f.id === selectedId)}
                         onChange={(patch) => updateField(selectedId, patch)}
+                        darkMode={darkMode}
                       />
                     ) : (
-                      <div style={{ color: "#666" }}>Select a field to edit properties</div>
+                      <div className={darkMode ? 'text-gray-400' : 'text-gray-600'}>Select a field to edit properties</div>
                     )}
                   </div>
                 </main>
 
-                <section style={{ padding: "20px", borderTop: "1px solid #eee", background: "#fafafa" }}>
-                  <h2 style={{ marginBottom: 16, fontSize: 20, fontWeight: 600, color: "#333" }}>
+                <section className={darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'} style={{ padding: "20px", borderTop: "1px solid" }}>
+                  <h2 className={darkMode ? 'text-gray-200' : 'text-gray-900'} style={{ marginBottom: 16, fontSize: 20, fontWeight: 600 }}>
                     Live Preview
                   </h2>
-                  <LivePreview fields={fields} title={title} />
+                  <LivePreview fields={fields} title={title} darkMode={darkMode} />
                 </section>
               </>
             ) : (
