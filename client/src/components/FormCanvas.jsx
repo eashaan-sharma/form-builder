@@ -3,7 +3,7 @@ import { useDroppable, DndContext } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-export default function FormCanvas({ fields = [], onSelect, selectedId, onRemove, onAddFieldFromDrag, onReorder }) {
+export default function FormCanvas({ fields = [], onSelect, selectedId, onRemove, onAddFieldFromDrag, onReorder, darkMode }) {
   const { setNodeRef, isOver } = useDroppable({ id: "canvas" });
 
   function handleDragEnd(event) {
@@ -60,7 +60,7 @@ export default function FormCanvas({ fields = [], onSelect, selectedId, onRemove
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div>
-        <div style={{ marginBottom: 12, color: "#666" }}>Canvas</div>
+        <div style={{ marginBottom: 12, color: "#666" }}><b>Canvas</b> - Just drag and drop fields here and reorder them using the drag handle</div>
 
         <div
           ref={setNodeRef}
